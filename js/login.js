@@ -22,4 +22,36 @@ formLogin.addEventListener("submit", async function(e){
     } else {
         alert(dados.mensagem);
     }
+
+    const btnIrCadastro = document.getElementById("irCadastro");
+    if(btnIrCadastro){
+    btnIrCadastro.addEventListener("click", function(){
+        window.location.href = "cadastro.html";
+    });
+}
+
+});
+
+formLogin.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    const response = await fetch('https://trabalho-controle-de-patrocinios.onrender.com/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha })
+    });
+
+    const data = await response.json();
+
+    if (response.status === 404) {
+        alert(data.mensagem); // "Usuário não cadastrado! Por favor, cadastre-se."
+        window.location.href = "cadastro.html";
+    } else if (response.ok) {
+        alert(data.mensagem);
+        window.location.href = "pgp.html";
+    } else {
+        alert(data.mensagem);
+    }
 });

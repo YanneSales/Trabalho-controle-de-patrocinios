@@ -1,12 +1,12 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-
 const app = express();
-app.use(express.json());
-app.use(cors()); // Permite que o site acesse o servidor
 
-// 🔗 CONEXÃO COM FILESS.IO
+app.use(express.json());
+app.use(cors());
+
+// --- CONFIGURAÇÃO DO BANCO FILERSS.IO ---
 const db = mysql.createConnection({
     host: 'k65y1l.h.filess.io', 
     user: 'Controle_methodpen',
@@ -16,43 +16,38 @@ const db = mysql.createConnection({
 });
 
 db.connect(err => {
-    if (err) return console.error("Erro ao conectar no banco:", err);
-    console.log("Conectado ao banco de dados com sucesso!");
+    if (err) return console.error("Erro ao conectar no Filess:", err);
+    console.log("Banco de dados conectado!");
 });
 
-// ROTA DE LOGIN
-app.post('/login', (req, res) => {
-    const { email, senha } = req.body;
-    const sql = "SELECT * FROM usuarios WHERE email = ?";
-
-    db.query(sql, [email], (err, results) => {
-        if (err) return res.status(500).send(err);
-
-        if (results.length === 0) {
-            return res.status(404).send({ mensagem: "Usuário não cadastrado!" });
-        }
-
-        const usuario = results[0];
-        if (usuario.senha !== senha) {
-            return res.status(401).send({ mensagem: "Senha incorreta!" });
-        }
-
-        res.send({ mensagem: "Login realizado com sucesso!" });
-    });
-});
-
-// ROTA DE CADASTRO
+// Rota de Cadastro
 app.post('/cadastrar', (req, res) => {
     const { nome, email, senha } = req.body;
     const sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
-
-    db.query(sql, [nome, email, senha], (err, result) => {
-        if (err) {
-            if (err.code === 'ER_DUP_ENTRY') return res.status(400).send({ mensagem: "E-mail já cadastrado!" });
-            return res.status(500).send(err);
-        }
-        res.send({ mensagem: "Cadastro realizado com sucesso!" });
+    db.query(sql, [nome, email, senha], (err) => {
+        if (err) return res.status(500).json({ mensagem: "Erro ao cadastrar ou e-mail já existe." });
+        res.json({ mensagem: "Cadastro realizado com sucesso!" });
     });
 });
 
-app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
+// Rota de Login
+app.post('/login', (req, res) => {
+    const { email, senha } = req.body;
+    const sql = "SELECT * FROM usuarios WHERE email = ?";
+    db.query(sql, [email], (err, results) => {
+        if (err) return res.status(500).json({ mensagem: "Erro no servidor." });
+        
+        if (results.length === 0) {
+            return res.status(404).json({ mensagem: "Usuário não cadastrado! Por favor, cadastre-se." });
+        }
+
+        if (results[0].senha !== senha) {
+            return res.status(401).json({ mensagem: "Senha incorreta." });
+        }
+
+        res.json({ mensagem: "Login realizado com sucesso!" });
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
