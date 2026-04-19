@@ -1,53 +1,64 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+
 const app = express();
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-// --- CONFIGURAÇÃO DO BANCO FILERSS.IO ---
+// ⚠️ Configuração do Banco da Yanne (Filess.io)
 const db = mysql.createConnection({
     host: 'k65y1l.h.filess.io', 
     user: 'Controle_methodpen',
     password: 'ea7d39c12221d686bbf724736cb0538c36e96618',
     database: 'Controle_methodpen',
-    port: 3307 
+    port: 3307 // Ela deve testar 3307 ou 3306
 });
 
-db.connect(err => {
-    if (err) return console.error("Erro ao conectar no Filess:", err);
-    console.log("Banco de dados conectado!");
+db.connect((err) => {
+    if (err) {
+        console.error("Erro ao conectar no Filess:", err);
+        return;
+    }
+    console.log("Banco de Patrocínios conectado!");
 });
 
-// Rota de Cadastro
+// --- ROTA DE CADASTRO ---
 app.post('/cadastrar', (req, res) => {
-    const { nome, email, senha } = req.body;
+    const { nome, email, senha } = req.body; // No dela usamos 'email'
+    
+    // Ela precisa conferir se a tabela dela chama 'usuarios' ou 'tbUsuarios'
     const sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
-    db.query(sql, [nome, email, senha], (err) => {
-        if (err) return res.status(500).json({ mensagem: "Erro ao cadastrar ou e-mail já existe." });
-        res.json({ mensagem: "Cadastro realizado com sucesso!" });
+    
+    db.query(sql, [nome, email, senha], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: "Erro ao gravar no banco" });
+        }
+        res.status(200).json({ msg: "Usuário gravado com sucesso!" });
     });
 });
 
-// Rota de Login
+// --- ROTA DE LOGIN ---
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
-    const sql = "SELECT * FROM usuarios WHERE email = ?";
-    db.query(sql, [email], (err, results) => {
-        if (err) return res.status(500).json({ mensagem: "Erro no servidor." });
+    
+    const sql = "SELECT * FROM usuarios WHERE email = ? AND senha = ?";
+    
+    db.query(sql, [email, senha], (err, data) => {
+        if (err) return res.status(500).json(err);
         
-        if (results.length === 0) {
-            return res.status(404).json({ mensagem: "Usuário não cadastrado! Por favor, cadastre-se." });
+        if (data.length > 0) {
+            res.status(200).json({ msg: "Login realizado!", usuario: data[0] });
+        } else {
+            // Se não achar o usuário (404 ou 401 para redirecionar no front)
+            res.status(404).json({ msg: "E-mail ou senha incorretos" });
         }
-
-        if (results[0].senha !== senha) {
-            return res.status(401).json({ mensagem: "Senha incorreta." });
-        }
-
-        res.json({ mensagem: "Login realizado com sucesso!" });
     });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Servidor de Patrocínios rodando na porta ${PORT}`);
+});

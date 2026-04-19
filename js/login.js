@@ -1,39 +1,40 @@
-const formLogin = document.getElementById("formLogin");
-const btnIrCadastro = document.getElementById("irCadastro");
+document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-if (formLogin) {
-    formLogin.addEventListener("submit", async function(e) {
-        e.preventDefault();
+    // No HTML dela, as IDs são 'email' e 'senha'
+    const email = document.getElementById('email').value; 
+    const senha = document.getElementById('senha').value; 
 
-        const email = document.getElementById("email").value;
-        const senha = document.getElementById("senha").value;
+    try {
+        // ⚠️ Ela deve usar a URL do Render DELA aqui
+        const response = await fetch('https://trabalho-controle-de-patrocinios.onrender.com/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // ⚠️ No server.js dela, o banco espera { email, senha }
+            body: JSON.stringify({ email, senha }) 
+        });
 
-        try {
-            const urlRender = "https://trabalho-controle-de-patrocinios.onrender.com";
+        const result = await response.json();
 
-            const resposta = await fetch(`${urlRender}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            });
-
-            const dados = await resposta.json();
-
-            if (resposta.status === 404) {
-                alert("Usuário não cadastrado! Redirecionando para cadastro...");
-                window.location.href = "cadastro.html";
-            } else if (resposta.ok) {
-                alert(dados.mensagem);
-                window.location.href = "pgp.html";
-            } else {
-                alert(dados.mensagem || "Erro no login.");
-            }
-        } catch (error) {
-            alert("Erro de conexão. Verifique se o servidor no Render está ativo.");
+        if (response.status === 404) {
+            // Regra que você pediu: Se não existir, avisa e manda cadastrar
+            alert("Usuário não cadastrado! Por favor, faça seu cadastro.");
+            window.location.href = "cadastro.html";
+            return;
         }
-    });
-}
 
-if (btnIrCadastro) {
-    btnIrCadastro.addEventListener("click", () => window.location.href = "cadastro.html");
-}
+        if (response.ok) {
+            alert("Login realizado com sucesso!");
+            // No caso dela, a página principal é a pgp.html ou index.html
+            window.location.href = "pgp.html"; 
+        } else {
+            // No server dela a resposta é .mensagem e não .msg
+            alert("Erro: " + (result.mensagem || "Falha no login"));
+        }
+    } catch (error) {
+        console.error("Erro ao conectar:", error);
+        alert("O servidor está acordando no Render... Aguarde uns segundos e tente de novo.");
+    }
+});
