@@ -13,7 +13,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
             // Como no seu banco a coluna é 'login', vamos enviar como 'login'
             body: JSON.stringify({ 
             login: document.getElementById('login').value, // E aqui também
-            senha: senha 
+            senha:  document.getElementById('senha').value
             })
         });
 
@@ -23,7 +23,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
             alert("Bem-vinda!");
             window.location.href = "pgp.html";
         } else {
-            // ✅ CORREÇÃO 3: Garanta que o server responde com 'msg' ou 'mensagem'
+            // ✅ CORREÇÃO 3: Garanta qgiue o server responde com 'msg' ou 'mensagem'
             alert("Erro: " + (result.msg || result.mensagem || "Credenciais inválidas"));
         }
     } catch (error) {
