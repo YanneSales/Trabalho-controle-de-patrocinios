@@ -16,7 +16,7 @@ alert("Redirecionar para tela de login.");
 
 btnCadastro.addEventListener("click", function(){
 
-alert("Abrir cadastro de patrocínio.");
+alert("Em construção");
 
 });
 

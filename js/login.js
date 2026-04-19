@@ -20,7 +20,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (response.ok) {
-            alert("Bem-vinda!");
+            alert("Bem-vindo(a)!");
             window.location.href = "pgp.html";
         } else {
             // ✅ CORREÇÃO 3: Garanta qgiue o server responde com 'msg' ou 'mensagem'
