@@ -21,7 +21,11 @@ document.getElementById('formCadastro').addEventListener('submit', async (e) => 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             // Enviando 'login' para bater com a coluna do banco dela
-            body: JSON.stringify({ nome, login, senha }) 
+            body: JSON.stringify({ 
+            nome: nome, 
+            login: document.getElementById('login').value, // Use 'login' aqui
+            senha: senha }
+        )
         });
 
         const result = await response.json();

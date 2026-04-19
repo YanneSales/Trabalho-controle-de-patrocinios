@@ -12,8 +12,8 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
             // ✅ CORREÇÃO 2: O seu server.js espera 'email' ou 'login'? 
             // Como no seu banco a coluna é 'login', vamos enviar como 'login'
             body: JSON.stringify({ 
-                login: loginDigitado, 
-                senha: senhaDigitada 
+            login: document.getElementById('login').value, // E aqui também
+            senha: senha 
             })
         });
 
