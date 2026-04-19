@@ -2,7 +2,7 @@ formCadastro.addEventListener("submit", async function(e){
     e.preventDefault();
     // Pegar valores dos inputs (nome, email, senha...)
 
-    const resposta = await fetch('https://LINK-DO-RENDER-AQUI.com/cadastrar', {
+    const resposta = await fetch('https://trabalho-controle-de-patrocinios.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, email, senha })

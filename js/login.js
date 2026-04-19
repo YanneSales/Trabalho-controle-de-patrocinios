@@ -1,24 +1,25 @@
-/* Login */
-formLogin.addEventListener("submit", function(e){
+formLogin.addEventListener("submit", async function(e){
     e.preventDefault();
+    // Pegar valores de email e senha
 
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value.trim();
+    const resposta = await fetch('https://trabalho-controle-de-patrocinios.onrender.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha })
+    });
 
-    // Simulando busca no "banco" (ou localStorage por enquanto)
-    const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
+    const dados = await resposta.json();
 
-    if(!usuarioSalvo || email !== usuarioSalvo.email){
-        alert("Usuário não cadastrado! Por favor, realize o cadastro.");
-        window.location.href = "cadastro.html"; // Manda ela se cadastrar
+    if (resposta.status === 404) {
+        alert("Usuário não cadastrado! Por favor, cadastre-se.");
+        window.location.href = "cadastro.html";
         return;
     }
 
-    if(senha !== usuarioSalvo.senha){
-        alert("Senha incorreta.");
-        return;
+    if (resposta.ok) {
+        alert("Bem-vindo(a)!");
+        window.location.href = "pgp.html";
+    } else {
+        alert(dados.mensagem);
     }
-
-    alert("Login realizado com sucesso!");
-    window.location.href = "index.html";
 });
