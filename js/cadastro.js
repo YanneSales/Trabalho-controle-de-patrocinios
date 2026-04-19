@@ -14,3 +14,12 @@ formCadastro.addEventListener("submit", async (e) => {
     alert(data.mensagem);
     if (response.ok) window.location.href = "login.html";
 });
+
+function cadastrar() {
+    window.location.href = "login.html";
+}
+
+// Função para o botão verde de voltar
+function voltarLogin() {
+    window.location.href = "login.html";
+}
