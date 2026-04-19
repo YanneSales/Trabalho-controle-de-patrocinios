@@ -8,21 +8,19 @@ app.use(cors());
 app.use(express.json());
 
 // ⚠️ Configuração do Banco da Yanne (Filess.io)
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: 'k65y1l.h.filess.io', 
     user: 'Controle_methodpen',
     password: 'ea7d39c12221d686bbf724736cb0538c36e96618',
     database: 'Controle_methodpen',
-    port: 3307 // Ela deve testar 3307 ou 3306
+    port: 3307, // Ela deve testar 3307 ou 3306
+    waitForConnections: true,
+    connectionLimit: 5, // Limite exato do Filess.io
+    queueLimit: 0
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error("Erro ao conectar no Filess:", err);
-        return;
-    }
-    console.log("Banco de Patrocínios conectado!");
-});
+
+console.log("Pool de conexões configurado!");
 
 // Rota de Cadastro
 app.post('/cadastrar', (req, res) => {
@@ -43,16 +41,12 @@ app.post('/cadastrar', (req, res) => {
 // Rota de Login
 app.post('/login', (req, res) => {
     const { login, senha } = req.body;
-    
-    // Garanta que o nome da tabela seja exatamente 'usuarios' (minúsculo)
     const sql = "SELECT * FROM usuarios WHERE login = ? AND senha = ?";
-    
+
     db.query(sql, [login, senha], (err, data) => {
         if (err) {
-            console.error(err);
-            return res.status(500).json({ msg: "Erro técnico: " + err.message });
+            return res.status(500).json({ msg: "Erro no banco: " + err.message });
         }
-        
         if (data.length > 0) {
             res.status(200).json({ msg: "Login realizado!" });
         } else {
