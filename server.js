@@ -24,40 +24,34 @@ db.connect((err) => {
     console.log("Banco de Patrocínios conectado!");
 });
 
-// --- ROTA DE CADASTRO ---
+// Rota de Cadastro
 app.post('/cadastrar', (req, res) => {
-    const { nome, email, senha } = req.body; // No dela usamos 'email'
+    const { nome, email, senha } = req.body; 
+    // Mudamos para 'login' (coluna do banco) e 'Usuarios' (nome da tabela)
+    const sql = "INSERT INTO usuarios (nome, login, senha) VALUES (?, ?, ?)";
     
-    // Ela precisa conferir se a tabela dela chama 'usuarios' ou 'tbUsuarios'
-    const sql = "INSERT INTO Usuarios (nome, email, senha) VALUES (?, ?, ?)";
-    
-    db.query(sql, [nome, email, senha], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ msg: "Erro ao gravar no banco" });
-        }
-        res.status(200).json({ msg: "Usuário gravado com sucesso!" });
+    db.query(sql, [nome, email, senha], (err) => {
+        if (err) return res.status(500).json({ msg: "Erro no banco: " + err.message });
+        res.json({ msg: "Usuário gravado com sucesso!" });
     });
 });
 
-// --- ROTA DE LOGIN ---
+// Rota de Login
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
+    // Mudamos para 'login' que é o nome na tabela dela
+    const sql = "SELECT * FROM usuarios WHERE login = ? AND senha = ?";
     
-    const sql = "SELECT * FROM Usuarios WHERE email = ? AND senha = ?";
-    
-    db.query(sql, [email, senha], (err, data) => {
-        if (err) return res.status(500).json(err);
+    db.query(sql, [email, senha], (err, results) => {
+        if (err) return res.status(500).json({ msg: err.message });
         
-        if (data.length > 0) {
-            res.status(200).json({ msg: "Login realizado!", usuario: data[0] });
+        if (results.length > 0) {
+            res.json({ msg: "Login realizado!" });
         } else {
-            // Se não achar o usuário (404 ou 401 para redirecionar no front)
-            res.status(404).json({ msg: "E-mail ou senha incorretos" });
+            res.status(401).json({ msg: "E-mail ou senha incorretos" });
         }
     });
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor de Patrocínios rodando na porta ${PORT}`);
