@@ -29,7 +29,7 @@ app.post('/cadastrar', (req, res) => {
     const { nome, email, senha } = req.body; // No dela usamos 'email'
     
     // Ela precisa conferir se a tabela dela chama 'usuarios' ou 'tbUsuarios'
-    const sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
+    const sql = "INSERT INTO Usuarios (nome, email, senha) VALUES (?, ?, ?)";
     
     db.query(sql, [nome, email, senha], (err, result) => {
         if (err) {
@@ -44,7 +44,7 @@ app.post('/cadastrar', (req, res) => {
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
     
-    const sql = "SELECT * FROM usuarios WHERE email = ? AND senha = ?";
+    const sql = "SELECT * FROM Usuarios WHERE email = ? AND senha = ?";
     
     db.query(sql, [email, senha], (err, data) => {
         if (err) return res.status(500).json(err);

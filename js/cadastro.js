@@ -23,6 +23,6 @@ document.getElementById('formCadastro').addEventListener('submit', async (e) => 
         }
     } catch (error) {
         console.error("Erro ao conectar:", error);
-        alert("O servidor está acordando... Tente novamente em instantes.");
+        alert("O servidor está conectando... Tente novamente em instantes.");
     }
 });
