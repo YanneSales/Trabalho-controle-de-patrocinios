@@ -1,28 +1,41 @@
 document.getElementById('formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // No HTML dela, as IDs são 'email' e 'senha'
-    const email = document.getElementById('email').value; 
-    const senha = document.getElementById('senha').value; 
+    // ✅ CORREÇÃO 1: O ID no seu HTML é 'login', não 'email'
+    const loginDigitado = document.getElementById('login').value; 
+    const senhaDigitada = document.getElementById('senha').value; 
 
-    // Dentro do addEventListener de submit:
-try {
-    const response = await fetch('https://trabalho-controle-de-patrocinios.onrender.com/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }) // Aqui o JS envia o valor, o server recebe como 'email'
-    });
+    try {
+        const response = await fetch('https://trabalho-controle-de-patrocinios.onrender.com/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // ✅ CORREÇÃO 2: O seu server.js espera 'email' ou 'login'? 
+            // Como no seu banco a coluna é 'login', vamos enviar como 'login'
+            body: JSON.stringify({ 
+                login: loginDigitado, 
+                senha: senhaDigitada 
+            })
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (response.ok) {
-        alert("Bem-vinda!");
-        window.location.href = "pgp.html";
-    } else {
-        // Isso vai mostrar se o erro é "E-mail ou senha incorretos" ou erro de banco
-        alert("Erro: " + result.msg);
+        if (response.ok) {
+            alert("Bem-vinda!");
+            window.location.href = "pgp.html";
+        } else {
+            // ✅ CORREÇÃO 3: Garanta que o server responde com 'msg' ou 'mensagem'
+            alert("Erro: " + (result.msg || result.mensagem || "Credenciais inválidas"));
+        }
+    } catch (error) {
+        console.error("Erro na conexão:", error);
+        alert("O servidor está acordando... Tente novamente em 30 segundos.");
     }
-} catch (error) {
-    alert("O servidor está offline ou acordando. Tente de novo em 30 segundos.");
-}
 });
+
+// ✅ CORREÇÃO 4: Linkar o botão "Cadastre-se" que está fora do form
+const btnIrCadastro = document.getElementById("irCadastro");
+if (btnIrCadastro) {
+    btnIrCadastro.addEventListener("click", () => {
+        window.location.href = "cadastro.html";
+    });
+}

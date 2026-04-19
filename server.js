@@ -28,6 +28,7 @@ db.connect((err) => {
 app.post('/cadastrar', (req, res) => {
     const { nome, email, senha } = req.body; 
     // Mudamos para 'login' (coluna do banco) e 'Usuarios' (nome da tabela)
+    // Garanta que o INSERT use os nomes das colunas do print do banco
     const sql = "INSERT INTO usuarios (nome, login, senha) VALUES (?, ?, ?)";
     
     db.query(sql, [nome, email, senha], (err) => {
