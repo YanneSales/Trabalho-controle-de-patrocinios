@@ -19,3 +19,5 @@ btnCadastro.addEventListener("click", function(){
 alert("Abrir cadastro de patrocínio.");
 
 });
+
+
