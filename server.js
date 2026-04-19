@@ -39,17 +39,26 @@ app.post('/cadastrar', (req, res) => {
 
 // Rota de Login
 app.post('/login', (req, res) => {
-    const { email, senha } = req.body;
-    // Mudamos para 'login' que é o nome na tabela dela
+    // O Front-end está enviando { login, senha } ou { email, senha }?
+    // Vamos garantir que pegamos o valor correto:
+    const loginRecebido = req.body.login || req.body.email; 
+    const senhaRecebida = req.body.senha;
+
+    // Use o nome da tabela exatamente como no print: usuarios (minúsculo)
     const sql = "SELECT * FROM usuarios WHERE login = ? AND senha = ?";
-    
-    db.query(sql, [email, senha], (err, results) => {
-        if (err) return res.status(500).json({ msg: err.message });
-        
-        if (results.length > 0) {
-            res.json({ msg: "Login realizado!" });
+
+    db.query(sql, [loginRecebido, senhaRecebida], (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ mensagem: "Erro no banco de dados" });
+        }
+
+        if (data.length > 0) {
+            // Se encontrou, sucesso!
+            res.status(200).json({ mensagem: "Login realizado!", usuario: data[0] });
         } else {
-            res.status(401).json({ msg: "E-mail ou senha incorretos" });
+            // Se não encontrou, cai aqui
+            res.status(401).json({ mensagem: "Credenciais inválidas" });
         }
     });
 });
