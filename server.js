@@ -55,24 +55,26 @@ app.post('/login', (req, res) => {
     });
 });
 
-// C - CREATE: Rota para Criar uma Solicitação
+// C - CREATE: Rota para Criar uma Solicitação (Ajustada para o seu banco)
 app.post('/solicitacoes', (req, res) => {
     const { descricao, valor_solicitado } = req.body;
     const statusDefault = 'Pendente';
     
-    // Como o seu banco exige chaves estrangeiras, usaremos IDs fixos (1) para teste.
-    // Assim que tiver proponentes/beneficiários criados no banco, eles se vincularão corretamente.
-    const proponente_id = 1;
+    // Como são apenas colunas comuns de número na sua tabela, salvamos o valor 1 diretamente
+    const propoente_id = 1;
     const beneficiario_id = 1;
     const evento_tipo_id = 1;
 
+    // Query montada com as colunas exatas da sua tabela 'solicitacao'
     const sql = `INSERT INTO solicitacao 
         (descricao, valor_solicitado, status, propoente_id, beneficiario_id, evento_tipo_id, data_criacao) 
         VALUES (?, ?, ?, ?, ?, ?, NOW())`;
 
-    db.query(sql, [descricao, valor_solicitado, statusDefault, proponente_id, beneficiario_id, evento_tipo_id], (err, result) => {
+    const valores = [descricao, valor_solicitado, statusDefault, propoente_id, beneficiario_id, evento_tipo_id];
+
+    db.query(sql, valores, (err, result) => {
         if (err) {
-            console.error(err);
+            console.error("Erro interno do MySQL:", err);
             return res.status(500).json({ msg: "Erro ao criar solicitação: " + err.message });
         }
         res.status(201).json({ msg: "Solicitação criada com sucesso!", id: result.insertId });
