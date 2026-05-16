@@ -89,7 +89,7 @@ async function carregarTabela() {
 
         tbody.innerHTML = ''; // Limpa a tabela antes de preencher
 
-        if (solicitacoes.length === 0) {
+        if (solicitacao.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum patrocínio cadastrado.</td></tr>`;
             return;
         }

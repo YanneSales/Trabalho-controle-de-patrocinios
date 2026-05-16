@@ -24,9 +24,9 @@ console.log("Pool de conexões configurado!");
 
 // Rota de Cadastro
 app.post('/cadastrar', (req, res) => {
-    const { nome, login, senha } = req.body; // Certifique-se de usar 'login' aqui
+    const { nome, login, senha } = req.body; 
     
-    // Use 'usuarios' minúsculo e 'login' como nome da coluna
+   
     const sql = "INSERT INTO usuarios (nome, login, senha) VALUES (?, ?, ?)";
     
     db.query(sql, [nome, login, senha], (err, result) => {
@@ -45,7 +45,7 @@ app.post('/login', (req, res) => {
 
     db.query(sql, [login, senha], (err, data) => {
         if (err) {
-            return res.status(500).json({ msg: "Erro no banco: " + err.message });
+            return res.status(500).json({ msg: "Servidor acordando, tente novamente em alguns segundos " + err.message });
         }
         if (data.length > 0) {
             res.status(200).json({ msg: "Login realizado!" });
@@ -56,21 +56,21 @@ app.post('/login', (req, res) => {
 });
 
 // C - CREATE: Rota para Criar uma Solicitação (Ajustada para o seu banco)
-app.post('/solicitacoes', (req, res) => {
+app.post('/solicitacao', (req, res) => {
     const { descricao, valor_solicitado } = req.body;
     const statusDefault = 'Pendente';
     
     // Como são apenas colunas comuns de número na sua tabela, salvamos o valor 1 diretamente
-    const propoente_id = 1;
+    const proponente_id = 1;
     const beneficiario_id = 1;
     const evento_tipo_id = 1;
 
     // Query montada com as colunas exatas da sua tabela 'solicitacao'
-    const sql = `INSERT INTO solicitacoes
+    const sql = `INSERT INTO solicitacao
         (descricao, valor_solicitado, status, proponente_id, beneficiario_id, evento_tipo_id, data_criacao) 
         VALUES (?, ?, ?, ?, ?, ?, NOW())`;
 
-    const valores = [descricao, valor_solicitado, statusDefault, propoente_id, beneficiario_id, evento_tipo_id];
+    const valores = [descricao, valor_solicitado, statusDefault, proponente_id, beneficiario_id, evento_tipo_id];
 
     db.query(sql, valores, (err, result) => {
         if (err) {
@@ -82,7 +82,7 @@ app.post('/solicitacoes', (req, res) => {
 });
 
 // R - READ: Rota para Listar Todas as Solicitações na Tabela
-app.get('/solicitacoes', (req, res) => {
+app.get('/solicitacao', (req, res) => {
     const sql = "SELECT * FROM solicitacao ORDER BY data_criacao DESC";
 
     db.query(sql, (err, data) => {
@@ -95,7 +95,7 @@ app.get('/solicitacoes', (req, res) => {
 });
 
 // U - UPDATE: Rota para Editar uma Solicitação Existente
-app.put('/solicitacoes/:id', (req, res) => {
+app.put('/solicitacao/:id', (req, res) => {
     const { id } = req.params;
     const { descricao, valor_solicitado } = req.body;
 
@@ -111,7 +111,7 @@ app.put('/solicitacoes/:id', (req, res) => {
 });
 
 // D - DELETE: Rota para Excluir uma Solicitação
-app.delete('/solicitacoes/:id', (req, res) => {
+app.delete('/solicitacao/:id', (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM solicitacao WHERE solicitacao_id = ?";
 
