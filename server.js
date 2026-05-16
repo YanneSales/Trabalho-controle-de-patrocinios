@@ -66,8 +66,8 @@ app.post('/solicitacoes', (req, res) => {
     const evento_tipo_id = 1;
 
     // Query montada com as colunas exatas da sua tabela 'solicitacao'
-    const sql = `INSERT INTO solicitacao 
-        (descricao, valor_solicitado, status, propoente_id, beneficiario_id, evento_tipo_id, data_criacao) 
+    const sql = `INSERT INTO solicitacoes
+        (descricao, valor_solicitado, status, proponente_id, beneficiario_id, evento_tipo_id, data_criacao) 
         VALUES (?, ?, ?, ?, ?, ?, NOW())`;
 
     const valores = [descricao, valor_solicitado, statusDefault, propoente_id, beneficiario_id, evento_tipo_id];
