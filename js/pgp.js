@@ -85,7 +85,7 @@ async function carregarTabela() {
 
     try {
         const resposta = await fetch(API_URL);
-        const solicitacoes = await resposta.json();
+        const solicitacao = await resposta.json();
 
         tbody.innerHTML = ''; // Limpa a tabela antes de preencher
 
