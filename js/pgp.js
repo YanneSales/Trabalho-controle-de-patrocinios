@@ -95,14 +95,17 @@ async function carregarTabela() {
         }
 
         solicitacoes.forEach(item => {
+            // Garante que o status tenha um texto padrão caso venha nulo do banco
+            const statusTexto = item.status || 'Pendente';
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>#${item.solicitacao_id}</td>
-                <td>${item.descricao}</td>
+                <td>${item.descricao || 'Sem descrição'}</td>
                 <td>R$ ${item.valor_solicitado ? Number(item.valor_solicitado).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
-                <td><span class="status pending">${item.status}</span></td>
+                <td><span class="status ${statusTexto.toLowerCase() === 'confirmado' ? 'confirm' : 'pending'}">${statusTexto}</span></td>
                 <td>
-                    <button class="btn-edit" onclick="abrirEdicao(${item.solicitacao_id}, '${item.descricao}', ${item.valor_solicitado})">
+                    <button class="btn-edit" onclick="abrirEdicao(${item.solicitacao_id}, '${item.descricao || ''}', ${item.valor_solicitado || 0})">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn-delete" onclick="deletarSolicitacao(${item.solicitacao_id})">
@@ -145,6 +148,9 @@ async function deletarSolicitacao(id) {
     } catch (erro) {
         console.error("Erro ao deletar:", erro);
     }
-    window.abrirEdicao = abrirEdicao;
-    window.deletarSolicitacao = deletarSolicitacao;
 }
+
+// === ISSO DEVE FICAR FORA DE TUDO, NA ÚLTIMA LINHA DO ARQUIVO ===
+// Torna as funções visíveis globalmente para os cliques de botões do HTML funcionar
+window.abrirEdicao = abrirEdicao;
+window.deletarSolicitacao = deletarSolicitacao;
