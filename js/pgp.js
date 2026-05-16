@@ -99,7 +99,7 @@ async function carregarTabela() {
             tr.innerHTML = `
                 <td>#${item.solicitacao_id}</td>
                 <td>${item.descricao}</td>
-                <td>R$ ${Number(item.valor_solicitado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td>R$ ${item.valor_solicitado ? Number(item.valor_solicitado).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
                 <td><span class="status pending">${item.status}</span></td>
                 <td>
                     <button class="btn-edit" onclick="abrirEdicao(${item.solicitacao_id}, '${item.descricao}', ${item.valor_solicitado})">
