@@ -19,6 +19,17 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
+// Middleware para garantir que o banco está vivo antes de processar rotas
+app.use((req, res, next) => {
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error("Erro crítico de conexão com o banco:", err.message);
+            return res.status(500).json({ msg: "Banco de dados inacessível no momento. Tente novamente." });
+        }
+        connection.release(); // Libera a conexão de volta para o pool
+        next();
+    });
+});
 
 console.log("Pool de conexões configurado!");
 
@@ -57,7 +68,7 @@ app.post('/login', (req, res) => {
 
 // ================= ROTAS DE PESSOAS / IDENTIFICAÇÃO =================
 
-// READ: Listar todas as pessoas cadastradas (Usado no gerenciamento pela engrenagem)
+// READ: Listar todas as pessoas cadastradas (Usado na engrenagem)
 app.get('/pessoas', (req, res) => {
     const sql = "SELECT * FROM pessoas ORDER BY nome ASC";
     db.query(sql, (err, data) => {
@@ -92,7 +103,7 @@ app.post('/pessoas', (req, res) => {
     });
 });
 
-// UPDATE: Atualizar cadastro da pessoa (Novo!)
+// UPDATE: Atualizar cadastro da pessoa
 app.put('/pessoas/:id', (req, res) => {
     const { id } = req.params;
     const { nome, telefone, pessoa_tipo_id } = req.body;
@@ -104,7 +115,7 @@ app.put('/pessoas/:id', (req, res) => {
     });
 });
 
-// DELETE: Remover pessoa do sistema (Novo!)
+// DELETE: Remover pessoa do sistema
 app.delete('/pessoas/:id', (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM pessoas WHERE pessoa_id = ?";
@@ -117,11 +128,13 @@ app.delete('/pessoas/:id', (req, res) => {
 
 // ================= ROTAS DE SOLICITAÇÃO =================
 
-// C - CREATE: Criando solicitação dinâmica usando o proponente e o tipo do evento selecionado (Modificado!)
+// C - CREATE: Criando solicitação na tabela 'solicitacao' com status em maiúsculo 'CRIADA'
 app.post('/solicitacao', (req, res) => {
     const { descricao, valor_solicitado, proponente_id, evento_tipo_id } = req.body;
-    const statusDefault = 'Pendente';
-    const beneficiario_id = 1; // Padrão
+    
+    // Ajustado para bater exatamente com os ENUMs e nomes das colunas do seu banco de dados
+    const statusDefault = 'CRIADA'; 
+    const beneficiario_id = 1; 
 
     const sql = `INSERT INTO solicitacao
         (descricao, valor_solicitado, status, proponente_id, beneficiario_id, evento_tipo_id, data_criacao) 
@@ -144,7 +157,7 @@ app.get('/solicitacao', (req, res) => {
     });
 });
 
-// U - UPDATE: Editar dados comuns incluindo o tipo do evento (Modificado!)
+// U - UPDATE: Editar dados comuns
 app.put('/solicitacao/:id', (req, res) => {
     const { id } = req.params;
     const { descricao, valor_solicitado, evento_tipo_id } = req.body;
@@ -156,12 +169,11 @@ app.put('/solicitacao/:id', (req, res) => {
     });
 });
 
-// PATCH - AVALIAR STATUS OU ADICIONAR OBSERVAÇÕES (Analistas e Aprovadores)
+// PATCH - AVALIAR STATUS
 app.patch('/solicitacao/avaliar/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body; 
     
-    // Atualiza o status conforme regras do ENUM de seu Banco
     const sql = "UPDATE solicitacao SET status = ? WHERE solicitacao_id = ?";
     db.query(sql, [status, id], (err, result) => {
         if (err) return res.status(500).json({ msg: err.message });
@@ -180,4 +192,4 @@ app.delete('/solicitacao/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor rodando com sucesso na porta ${PORT}`));
