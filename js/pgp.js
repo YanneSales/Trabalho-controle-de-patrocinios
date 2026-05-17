@@ -1,4 +1,4 @@
-const API_URL = 'https://trabalho-controle-de-patrocinios.onrender.com/solicitacoes'; // Mude para a URL remota se subir o backend também
+const API_URL = 'https://trabalho-controle-de-patrocinios.onrender.com/solicitacao'; // Mude para a URL remota se subir o backend também
 
 // Variável global para sabermos se estamos salvando um novo ou editando um existente
 let editandoId = null; 
