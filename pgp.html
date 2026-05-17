@@ -18,16 +18,17 @@
                     <li><a href="#"><i class="fas fa-hand-holding-usd"></i> Patrocínios</a></li>
                     <li><a href="#"><i class="fas fa-calendar-alt"></i> Eventos</a></li>
                     <li><a href="#"><i class="fas fa-chart-line"></i> Relatórios</a></li>
-                    <li><a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                    <li><a href="#" id="btnSair" class="logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
                 </ul>
             </nav>
         </aside>
 
         <main class="main-content">
             <header>
-                <h1>Painel de Controle</h1>
+                <h1>Painel de Controle (<span id="perfilExibido">Carregando...</span>)</h1>
                 <div class="user-info">
-                    <span>Bem-vindo, <strong>Admin</strong></span>
+                    <span>Bem-vindo, <strong id="nomeUsuario">Usuário</strong></span>
+                    <button id="btnConfig" class="btn-config-gear" title="Gerenciamento de Usuários (Apenas Proponentes)"><i class="fas fa-cog"></i></button>
                 </div>
             </header>
 
@@ -56,67 +57,141 @@
             </section>
 
             <div class="table-header">
-    <h2>Patrocínios Recentes</h2>
-    <button id="btnNovoPatrocinio" class="btn-add">+ Novo Patrocínio</button>
-</div>
-
-<div id="modalPatrocinio" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2><i class="fas fa-file-contract"></i> Novo Fluxo de Patrocínio</h2>
-        <p class="modal-subtitle">Preencha as etapas necessárias para registrar o apoio.</p>
-
-        <form id="formPatrocinio" action="/cadastrar-patrocinio" method="POST" enctype="multipart/form-data">
-            
-            <div class="form-section">
-                <h3><span class="step-number">1</span> Cadastrar Parceiro / Beneficiário</h3>
-                <div class="form-group">
-                    <label for="nomeParceiro">Razão Social / Nome:</label>
-                    <input type="text" id="nomeParceiro" name="nomeParceiro" placeholder="Ex: Empresa Exemplo S.A." required>
-                </div>
-                <div class="form-group">
-                    <label for="cnpjParceiro">CNPJ:</label>
-                    <input type="text" id="cnpjParceiro" name="cnpjParceiro" placeholder="00.000.000/0001-00" required>
-                </div>
+                <h2>Patrocínios Recentes</h2>
+                <button id="btnNovoPatrocinio" class="btn-add" style="display: none;">+ Novo Patrocínio</button>
             </div>
 
-            <div class="form-section">
-                <h3><span class="step-number">2</span> Criar Solicitação de Patrocínio / Apoio</h3>
-                <div class="form-group">
-                    <label for="objetivo">Objetivo / Escopo do Evento:</label>
-                    <textarea id="objetivo" name="objetivo" placeholder="Descreva brevemente o objetivo..." required></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="publico">Público-Alvo:</label>
-                        <input type="text" id="publico" name="publico" placeholder="Ex: Universitários, TI" required>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Descrição</th>
+                            <th>Valor Solicitado</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+
+            <div id="modalIdentificacao" class="modal" style="display: block;">
+                <div class="modal-content">
+                    <h2><i class="fas fa-user-check"></i> Identificação Necessária</h2>
+                    <p class="modal-subtitle">Acesse com seus dados ou crie um novo cadastro corporativo para prosseguir.</p>
+                    
+                    <div class="tab-container">
+                        <button id="tabAcessar" class="tab-btn active">Já tenho cadastro</button>
+                        <button id="tabCadastrar" class="tab-btn">Novo Cadastro</button>
                     </div>
-                    <div class="form-group">
-                        <label for="valor">Valor Solicitado (R$):</label>
-                        <input type="number" id="valor" name="valor" step="0.01" placeholder="0.00" required>
-                    </div>
+
+                    <form id="formAcessarPessoa">
+                        <div class="form-group">
+                            <label for="acessoNome">Nome Completo:</label>
+                            <input type="text" id="acessoNome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="acessoCpf">CPF:</label>
+                            <input type="text" id="acessoCpf" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="acessoTipo">Tipo de Pessoa / Perfil:</label>
+                            <select id="acessoTipo" required>
+                                <option value="2">PROPONENTE</option>
+                                <option value="3">ANALISTA</option>
+                                <option value="4">APROVADOR</option>
+                                <option value="5">FINANCEIRO</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit url-btn">Verificar e Entrar</button>
+                    </form>
+
+                    <form id="formCadastrarPessoa" style="display: none;">
+                        <div class="form-group">
+                            <label for="cadNome">Nome Completo:</label>
+                            <input type="text" id="cadNome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cadCpf">CPF:</label>
+                            <input type="text" id="cadCpf" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cadNascimento">Data de Nascimento:</label>
+                            <input type="date" id="cadNascimento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cadTelefone">Telefone:</label>
+                            <input type="text" id="cadTelefone" placeholder="(00) 00000-0000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cadTipo">Tipo de Pessoa / Função:</label>
+                            <select id="cadTipo" required>
+                                <option value="2">PROPONENTE</option>
+                                <option value="3">ANALISTA</option>
+                                <option value="4">APROVADOR</option>
+                                <option value="5">FINANCEIRO</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">Salvar e Registrar</button>
+                    </form>
                 </div>
             </div>
 
-            <div class="form-section">
-                <h3><span class="step-number">3</span> Anexar Proposta e Documentos</h3>
-                <div class="form-group">
-                    <label for="documentos" class="file-drop-area">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Clique para anexar Mídia, Plano de Divulgação ou Certidões</span>
-                        <input type="file" id="documentos" name="documentos" multiple>
-                    </label>
+            <div id="modalPatrocinio" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2><i class="fas fa-file-contract"></i> Novo Fluxo de Patrocínio</h2>
+                    <form id="formPatrocinio">
+                        <div class="form-section">
+                            <h3><span class="step-number">1</span> Detalhes do Pedido</h3>
+                            <div class="form-group">
+                                <label for="objetivo">Objetivo / Escopo do Evento:</label>
+                                <textarea id="objetivo" placeholder="Descreva brevemente o objetivo..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="valor">Valor Solicitado (R$):</label>
+                                <input type="number" id="valor" step="0.01" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn-submit">Salvar Patrocínio</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="submit" class="btn-submit">Salvar Patrocínio</button>
+            <div id="modalAvaliacao" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal-aval">&times;</span>
+                    <h2><i class="fas fa-gavel"></i> Analisar Solicitação</h2>
+                    <p id="detalheSolicitacaoTexto"></p>
+                    <form id="formAvaliacao">
+                        <input type="hidden" id="avaliacaoId">
+                        
+                        <div class="form-group" id="grupoAprovador" style="display: none;">
+                            <label for="selectStatus">Classificar Status (Aprovador):</label>
+                            <select id="selectStatus">
+                                <option value="Pendente">Pendente</option>
+                                <option value="EM_ANALISE">EM_ANALISE</option>
+                                <option value="APROVADA">APROVADA</option>
+                                <option value="REPROVADA">REPROVADA</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="grupoAnalista" style="display: none;">
+                            <label for="notaNegociacao">Notas de Negociação / Acompanhamento:</label>
+                            <textarea id="notaNegociacao" placeholder="Insira o parecer de análise ou condições de negociação..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Salvar Decisão</button>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
+
         </main>
     </div>
-    <script type="module" src="js/pgp.js"></script>
+    <script src="js/pgp.js"></script>
 </body>
 </html>
