@@ -357,14 +357,3 @@ select {
     font-size: 0.95rem;
     background: white;
 }
-
-.close-modal-users, .close-modal-edit-user {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #aaa;
-}
-.close-modal-users:hover, .close-modal-edit-user:hover { color: #333; }

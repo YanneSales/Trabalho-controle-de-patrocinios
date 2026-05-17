@@ -19,17 +19,63 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// Middleware para garantir que o banco está vivo antes de processar rotas
-app.use((req, res, next) => {
-    db.getConnection((err, connection) => {
+
+console.log("Pool de conexões configurado!");
+
+// Rota de Cadastro
+app.post('/cadastrar', (req, res) => {
+    const { nome, login, senha } = req.body; 
+    
+   
+    const sql = "INSERT INTO usuarios (nome, login, senha) VALUES (?, ?, ?)";
+    
+    db.query(sql, [nome, login, senha], (err, result) => {
         if (err) {
-            console.error("Erro crítico de conexão com o banco:", err.message);
-            return res.status(500).json({ msg: "Banco de dados inacessível no momento. Tente novamente." });
+            console.error(err);
+            return res.status(500).json({ msg: "Erro no banco: " + err.message });
         }
-        connection.release(); // Libera a conexão de volta para o pool
-        next();
+        res.status(200).json({ msg: "Usuário gravado com sucesso!" });
     });
 });
+
+// Rota de Login
+app.post('/login', (req, res) => {
+    const { login, senha } = req.body;
+    const sql = "SELECT * FROM usuarios WHERE login = ? AND senha = ?";
+
+    db.query(sql, [login, senha], (err, data) => {
+        if (err) {
+            return res.status(500).json({ msg: "Servidor acordando, tente novamente em alguns segundos " + err.message });
+        }
+        if (data.length > 0) {
+            res.status(200).json({ msg: "Login realizado!" });
+        } else {
+            res.status(401).json({ msg: "Credenciais inválidas" });
+        }
+    });
+});
+
+const express = require('express');
+const mysql = require('mysql2');
+const cors = require('cors');
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// Configuração do Banco 
+const db = mysql.createPool({
+    host: 'k65y1l.h.filess.io', 
+    user: 'Controle_methodpen',
+    password: 'ea7d39c12221d686bbf724736cb0538c36e96618',
+    database: 'Controle_methodpen',
+    port: 3307, 
+    waitForConnections: true,
+    connectionLimit: 5, // Limite exato do Filess.io
+    queueLimit: 0
+});
+
 
 console.log("Pool de conexões configurado!");
 
@@ -68,15 +114,6 @@ app.post('/login', (req, res) => {
 
 // ================= ROTAS DE PESSOAS / IDENTIFICAÇÃO =================
 
-// READ: Listar todas as pessoas cadastradas (Usado na engrenagem)
-app.get('/pessoas', (req, res) => {
-    const sql = "SELECT * FROM pessoas ORDER BY nome ASC";
-    db.query(sql, (err, data) => {
-        if (err) return res.status(500).json({ msg: err.message });
-        res.status(200).json(data);
-    });
-});
-
 // Verificar se pessoa já existe no sistema corporativo
 app.post('/pessoas/verificar', (req, res) => {
     const { nome, cpf, pessoa_tipo_id } = req.body;
@@ -92,7 +129,7 @@ app.post('/pessoas/verificar', (req, res) => {
     });
 });
 
-// CREATE: Cadastrar Nova Pessoa
+// Cadastrar Nova Pessoa
 app.post('/pessoas', (req, res) => {
     const { nome, cpf, nascimento, telefone, pessoa_tipo_id } = req.body;
     const sql = "INSERT INTO pessoas (nome, cpf, nascimento, telefone, pessoa_tipo_id) VALUES (?, ?, ?, ?, ?)";
@@ -103,38 +140,15 @@ app.post('/pessoas', (req, res) => {
     });
 });
 
-// UPDATE: Atualizar cadastro da pessoa
-app.put('/pessoas/:id', (req, res) => {
-    const { id } = req.params;
-    const { nome, telefone, pessoa_tipo_id } = req.body;
-    const sql = "UPDATE pessoas SET nome = ?, telefone = ?, pessoa_tipo_id = ? WHERE pessoa_id = ?";
-
-    db.query(sql, [nome, telefone, pessoa_tipo_id, id], (err, result) => {
-        if (err) return res.status(500).json({ msg: err.message });
-        res.status(200).json({ msg: "Usuário atualizado com sucesso!" });
-    });
-});
-
-// DELETE: Remover pessoa do sistema
-app.delete('/pessoas/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = "DELETE FROM pessoas WHERE pessoa_id = ?";
-    db.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json({ msg: err.message });
-        res.status(200).json({ msg: "Usuário removido com sucesso!" });
-    });
-});
-
 
 // ================= ROTAS DE SOLICITAÇÃO =================
 
-// C - CREATE: Criando solicitação na tabela 'solicitacao' com status em maiúsculo 'CRIADA'
+// C - CREATE: Criando solicitação dinâmica usando o proponente_id coletado
 app.post('/solicitacao', (req, res) => {
-    const { descricao, valor_solicitado, proponente_id, evento_tipo_id } = req.body;
-    
-    // Ajustado para bater exatamente com os ENUMs e nomes das colunas do seu banco de dados
-    const statusDefault = 'CRIADA'; 
-    const beneficiario_id = 1; 
+    const { descricao, valor_solicitado, proponente_id } = req.body;
+    const statusDefault = 'Pendente';
+    const beneficiario_id = 1; // Padrão
+    const evento_tipo_id = 1;  // Padrão
 
     const sql = `INSERT INTO solicitacao
         (descricao, valor_solicitado, status, proponente_id, beneficiario_id, evento_tipo_id, data_criacao) 
@@ -160,20 +174,21 @@ app.get('/solicitacao', (req, res) => {
 // U - UPDATE: Editar dados comuns
 app.put('/solicitacao/:id', (req, res) => {
     const { id } = req.params;
-    const { descricao, valor_solicitado, evento_tipo_id } = req.body;
-    const sql = "UPDATE solicitacao SET descricao = ?, valor_solicitado = ?, evento_tipo_id = ? WHERE solicitacao_id = ?";
+    const { descricao, valor_solicitado } = req.body;
+    const sql = "UPDATE solicitacao SET descricao = ?, valor_solicitado = ? WHERE solicitacao_id = ?";
 
-    db.query(sql, [descricao, valor_solicitado, evento_tipo_id, id], (err, result) => {
+    db.query(sql, [descricao, valor_solicitado, id], (err, result) => {
         if (err) return res.status(500).json({ msg: err.message });
         res.status(200).json({ msg: "Atualizada com sucesso!" });
     });
 });
 
-// PATCH - AVALIAR STATUS
+// PATCH - AVALIAR STATUS OU ADICIONAR OBSERVAÇÕES (Analistas e Aprovadores)
 app.patch('/solicitacao/avaliar/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body; 
     
+    // Atualiza o status conforme regras do ENUM de seu Banco
     const sql = "UPDATE solicitacao SET status = ? WHERE solicitacao_id = ?";
     db.query(sql, [status, id], (err, result) => {
         if (err) return res.status(500).json({ msg: err.message });
@@ -192,4 +207,4 @@ app.delete('/solicitacao/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando com sucesso na porta ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
