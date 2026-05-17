@@ -154,6 +154,16 @@
                                 <label for="valor">Valor Solicitado (R$):</label>
                                 <input type="number" id="valor" step="0.01" placeholder="0.00" required>
                             </div>
+                            <div class="form-group">
+                                <label for="selectEventoTipo">Tipo de Evento:</label>
+                                <select id="selectEventoTipo" required>
+                                    <option value="1">Geral</option>
+                                    <option value="2">Social</option>
+                                    <option value="3">Acadêmico</option>
+                                    <option value="4">Culturais</option>
+                                    <option value="5">Outros</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn-submit">Salvar Patrocínio</button>
@@ -169,7 +179,6 @@
                     <p id="detalheSolicitacaoTexto"></p>
                     <form id="formAvaliacao">
                         <input type="hidden" id="avaliacaoId">
-                        
                         <div class="form-group" id="grupoAprovador" style="display: none;">
                             <label for="selectStatus">Classificar Status (Aprovador):</label>
                             <select id="selectStatus">
@@ -179,13 +188,64 @@
                                 <option value="REPROVADA">REPROVADA</option>
                             </select>
                         </div>
-
                         <div class="form-group" id="grupoAnalista" style="display: none;">
                             <label for="notaNegociacao">Notas de Negociação / Acompanhamento:</label>
-                            <textarea id="notaNegociacao" placeholder="Insira o parecer de análise ou condições de negociação..."></textarea>
+                            <textarea id="notaNegociacao" placeholder="Insira o parecer de análise..."></textarea>
                         </div>
-
                         <button type="submit" class="btn-submit">Salvar Decisão</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="modalUsuarios" class="modal">
+                <div class="modal-content" style="max-width: 850px; width: 85%;">
+                    <span class="close-modal-users">&times;</span>
+                    <h2><i class="fas fa-users-cog"></i> Gerenciamento de Usuários</h2>
+                    <p class="modal-subtitle">Visualize, edite ou exclua o cadastro das pessoas registradas no ecossistema.</p>
+                    
+                    <div class="data-table" style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
+                        <table id="tabelaGerenciamentoUsuarios">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>CPF</th>
+                                    <th>Telefone</th>
+                                    <th>Perfil</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalEditarPessoa" class="modal" style="z-index: 1100;">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close-modal-edit-user">&times;</span>
+                    <h2><i class="fas fa-user-edit"></i> Editar Cadastro</h2>
+                    <form id="formEditarPessoa">
+                        <input type="hidden" id="editPessoaId">
+                        <div class="form-group">
+                            <label for="editNome">Nome Completo:</label>
+                            <input type="text" id="editNome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTelefone">Telefone:</label>
+                            <input type="text" id="editTelefone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTipo">Tipo de Pessoa / Função:</label>
+                            <select id="editTipo" required>
+                                <option value="2">PROPONENTE</option>
+                                <option value="3">ANALISTA</option>
+                                <option value="4">APROVADOR</option>
+                                <option value="5">FINANCEIRO</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit" style="width:100%">Salvar Alterações</button>
                     </form>
                 </div>
             </div>

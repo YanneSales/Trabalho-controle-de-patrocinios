@@ -57,6 +57,15 @@ app.post('/login', (req, res) => {
 
 // ================= ROTAS DE PESSOAS / IDENTIFICAÇÃO =================
 
+// READ: Listar todas as pessoas cadastradas (Usado no gerenciamento pela engrenagem)
+app.get('/pessoas', (req, res) => {
+    const sql = "SELECT * FROM pessoas ORDER BY nome ASC";
+    db.query(sql, (err, data) => {
+        if (err) return res.status(500).json({ msg: err.message });
+        res.status(200).json(data);
+    });
+});
+
 // Verificar se pessoa já existe no sistema corporativo
 app.post('/pessoas/verificar', (req, res) => {
     const { nome, cpf, pessoa_tipo_id } = req.body;
@@ -72,7 +81,7 @@ app.post('/pessoas/verificar', (req, res) => {
     });
 });
 
-// Cadastrar Nova Pessoa
+// CREATE: Cadastrar Nova Pessoa
 app.post('/pessoas', (req, res) => {
     const { nome, cpf, nascimento, telefone, pessoa_tipo_id } = req.body;
     const sql = "INSERT INTO pessoas (nome, cpf, nascimento, telefone, pessoa_tipo_id) VALUES (?, ?, ?, ?, ?)";
@@ -83,15 +92,36 @@ app.post('/pessoas', (req, res) => {
     });
 });
 
+// UPDATE: Atualizar cadastro da pessoa (Novo!)
+app.put('/pessoas/:id', (req, res) => {
+    const { id } = req.params;
+    const { nome, telefone, pessoa_tipo_id } = req.body;
+    const sql = "UPDATE pessoas SET nome = ?, telefone = ?, pessoa_tipo_id = ? WHERE pessoa_id = ?";
+
+    db.query(sql, [nome, telefone, pessoa_tipo_id, id], (err, result) => {
+        if (err) return res.status(500).json({ msg: err.message });
+        res.status(200).json({ msg: "Usuário atualizado com sucesso!" });
+    });
+});
+
+// DELETE: Remover pessoa do sistema (Novo!)
+app.delete('/pessoas/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM pessoas WHERE pessoa_id = ?";
+    db.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ msg: err.message });
+        res.status(200).json({ msg: "Usuário removido com sucesso!" });
+    });
+});
+
 
 // ================= ROTAS DE SOLICITAÇÃO =================
 
-// C - CREATE: Criando solicitação dinâmica usando o proponente_id coletado
+// C - CREATE: Criando solicitação dinâmica usando o proponente e o tipo do evento selecionado (Modificado!)
 app.post('/solicitacao', (req, res) => {
-    const { descricao, valor_solicitado, proponente_id } = req.body;
+    const { descricao, valor_solicitado, proponente_id, evento_tipo_id } = req.body;
     const statusDefault = 'Pendente';
     const beneficiario_id = 1; // Padrão
-    const evento_tipo_id = 1;  // Padrão
 
     const sql = `INSERT INTO solicitacao
         (descricao, valor_solicitado, status, proponente_id, beneficiario_id, evento_tipo_id, data_criacao) 
@@ -114,13 +144,13 @@ app.get('/solicitacao', (req, res) => {
     });
 });
 
-// U - UPDATE: Editar dados comuns
+// U - UPDATE: Editar dados comuns incluindo o tipo do evento (Modificado!)
 app.put('/solicitacao/:id', (req, res) => {
     const { id } = req.params;
-    const { descricao, valor_solicitado } = req.body;
-    const sql = "UPDATE solicitacao SET descricao = ?, valor_solicitado = ? WHERE solicitacao_id = ?";
+    const { descricao, valor_solicitado, evento_tipo_id } = req.body;
+    const sql = "UPDATE solicitacao SET descricao = ?, valor_solicitado = ?, evento_tipo_id = ? WHERE solicitacao_id = ?";
 
-    db.query(sql, [descricao, valor_solicitado, id], (err, result) => {
+    db.query(sql, [descricao, valor_solicitado, evento_tipo_id, id], (err, result) => {
         if (err) return res.status(500).json({ msg: err.message });
         res.status(200).json({ msg: "Atualizada com sucesso!" });
     });
