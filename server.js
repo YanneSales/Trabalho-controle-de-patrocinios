@@ -188,7 +188,7 @@ app.patch('/solicitacao/avaliar/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body; 
     
-    // Atualiza o status conforme regras do ENUM de seu Banco
+    // Atualiza o status conforme regras do ENUM do Banco
     const sql = "UPDATE solicitacao SET status = ? WHERE solicitacao_id = ?";
     db.query(sql, [status, id], (err, result) => {
         if (err) return res.status(500).json({ msg: err.message });
